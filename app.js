@@ -26,6 +26,12 @@ db.once("open", () => {
 
 const app = express();
 
+// setting view engine as ejs for SSR:
+app.set("view engine", "ejs");
+// this allows us to use nodemon app.js from anywhere and still access views.
+// basically set path for views relative to this file.
+app.set("views", path.join(__dirname, "views"));
+
 // using middlewares here:
 
 // helps in parsing req body which might be in json format:
@@ -39,14 +45,7 @@ app.use(methodOverride("_method"));
 
 // using morgan middleware for logging, Using a predefined format string by passing "dev" to morgan.
 app.use(morgan("dev"));
-// you can also define your own format or build your own logging middleware.
-
-// setting view engine as ejs for SSR:
-app.set("view engine", "ejs");
-
-// this allows us to use nodemon app.js from anywhere and still access views.
-// basically set path for views relative to this file.
-app.set("views", path.join(__dirname, "views"));
+// you can also define your own format or build your own middleware (see different branch for middleware).
 
 // ALL GET REQUESTS:
 
