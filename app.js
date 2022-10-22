@@ -2,6 +2,7 @@ const express = require("express");
 const path = require("path");
 const mongoose = require("mongoose");
 const Campground = require("./models/campground");
+const methodOverride = require("method-override");
 
 // creating/connecting to a database called yelp-camp:
 mongoose.connect("mongodb://localhost:27017/yelp-camp", {
@@ -24,12 +25,16 @@ db.once("open", () => {
 
 const app = express();
 
+// using middlewares here:
+
 // helps in parsing req body which might be in json format:
 app.use(
   express.urlencoded({
     extended: true
   })
 );
+// method override (for http methods other than get and post in html forms)
+app.use(methodOverride("_method"));
 
 // setting view engine as ejs for SSR:
 app.set("view engine", "ejs");
