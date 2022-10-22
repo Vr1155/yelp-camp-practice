@@ -31,10 +31,29 @@ app.set("view engine", "ejs");
 // basically set path for views relative to this file.
 app.set("views", path.join(__dirname, "views"));
 
+// ALL GET REQUESTS:
+
 app.get("/", (req, res) => {
   res.render("home");
 });
 
+// async get request for displaying all campgrounds:
+app.get("/campgrounds", async (req, res) => {
+  // finding all campgrounds will take time so you need await here:
+  const campgrounds = await Campground.find({});
+  res.render("campgrounds/index", { campgrounds });
+});
+
+// show details of individual campground using campground id:
+
+app.get("/campgrounds/:id", async (req, res) => {
+  // finding campground with that specific id using findById(),
+  // it will always return 1 record since ids are unique:
+  const campground = await Campground.findById(req.params.id);
+  res.render("campgrounds/show", { campground });
+});
+
+// creates a dummy campground
 app.get("/makecampground", async (req, res) => {
   const camp = new Campground({
     title: "My Backyard",
