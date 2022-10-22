@@ -24,6 +24,13 @@ db.once("open", () => {
 
 const app = express();
 
+// helps in parsing req body which might be in json format:
+app.use(
+  express.urlencoded({
+    extended: true
+  })
+);
+
 // setting view engine as ejs for SSR:
 app.set("view engine", "ejs");
 
@@ -44,6 +51,11 @@ app.get("/campgrounds", async (req, res) => {
   res.render("campgrounds/index", { campgrounds });
 });
 
+app.get("/campgrounds/new", (req, res) => {
+  const campground = {};
+  res.render("campgrounds/new", { campground });
+});
+
 // show details of individual campground using campground id:
 
 app.get("/campgrounds/:id", async (req, res) => {
@@ -61,6 +73,20 @@ app.get("/makecampground", async (req, res) => {
   });
   await camp.save();
   res.send(camp);
+});
+
+// All POST requests:
+
+// create new campground:
+
+app.post("/campgrounds", async (req, res) => {
+  // body contains a json object as a value which had a key of "campground"
+  // {"campground":{"title":"camp","location":"location"}}
+  const campground = new Campground(req.body.campground);
+  // note that campground is now in a schema that we want, so we can call save on it:
+  await campground.save();
+  // now campground is a record in our database, we can access its id, so we can redirect:
+  res.redirect(`/campgrounds/${campground._id}`);
 });
 
 app.listen(3000, () => {
