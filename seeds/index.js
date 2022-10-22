@@ -1,5 +1,3 @@
-const express = require("express");
-const path = require("path");
 const mongoose = require("mongoose");
 const Campground = require("./models/campground");
 
@@ -22,28 +20,8 @@ db.once("open", () => {
   console.log("Database connected");
 });
 
-const app = express();
-
-// setting view engine as ejs for SSR:
-app.set("view engine", "ejs");
-
-// this allows us to use nodemon app.js from anywhere and still access views.
-// basically set path for views relative to this file.
-app.set("views", path.join(__dirname, "views"));
-
-app.get("/", (req, res) => {
-  res.render("home");
-});
-
-app.get("/makecampground", async (req, res) => {
-  const camp = new Campground({
-    title: "My Backyard",
-    description: "Cheap Camping"
-  });
-  await camp.save();
-  res.send(camp);
-});
-
-app.listen(3000, () => {
-  console.log("serving on port 3000");
-});
+const seedDB = async () => {
+  await Campground.deleteMany({});
+  const c = new Campground({ title: "purple field" });
+  await c.save();
+};
