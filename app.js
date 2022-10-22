@@ -3,7 +3,7 @@ const path = require("path");
 const mongoose = require("mongoose");
 const Campground = require("./models/campground");
 const methodOverride = require("method-override");
-const { findByIdAndDelete } = require("./models/campground");
+const morgan = require("morgan");
 
 // creating/connecting to a database called yelp-camp:
 mongoose.connect("mongodb://localhost:27017/yelp-camp", {
@@ -36,6 +36,10 @@ app.use(
 );
 // method override (for http methods other than get and post in html forms)
 app.use(methodOverride("_method"));
+
+// using morgan middleware for logging, Using a predefined format string by passing "dev" to morgan.
+app.use(morgan("dev"));
+// you can also define your own format or build your own logging middleware.
 
 // setting view engine as ejs for SSR:
 app.set("view engine", "ejs");
