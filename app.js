@@ -75,6 +75,13 @@ app.get("/makecampground", async (req, res) => {
   res.send(camp);
 });
 
+app.get("/campgrounds/:id/edit", async (req, res) => {
+  const { id } = req.params;
+  const campground = await Campground.findById(id);
+
+  res.render("campgrounds/edit", { campground });
+});
+
 // All POST requests:
 
 // create new campground:
@@ -88,6 +95,10 @@ app.post("/campgrounds", async (req, res) => {
   // now campground is a record in our database, we can access its id, so we can redirect:
   res.redirect(`/campgrounds/${campground._id}`);
 });
+
+// All PUT requests:
+
+app.put("/campgrounds/:id/edit", async (req, res) => {});
 
 app.listen(3000, () => {
   console.log("serving on port 3000");
