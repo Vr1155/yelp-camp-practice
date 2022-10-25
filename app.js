@@ -4,6 +4,7 @@ const mongoose = require("mongoose");
 const Campground = require("./models/campground");
 const methodOverride = require("method-override");
 const morgan = require("morgan");
+const ejsMate = require("ejs-mate");
 
 // creating/connecting to a database called yelp-camp:
 mongoose.connect("mongodb://localhost:27017/yelp-camp", {
@@ -31,6 +32,8 @@ app.set("view engine", "ejs");
 // this allows us to use nodemon app.js from anywhere and still access views.
 // basically set path for views relative to this file.
 app.set("views", path.join(__dirname, "views"));
+
+app.engine("ejs", ejsMate);
 
 // using middlewares here:
 
