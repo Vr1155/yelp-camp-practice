@@ -49,7 +49,11 @@ const seedDB = async () => {
     // picking a random city and state and generating a random title:
     const camp = new Campground({
       location: `${cities[random1000].city}, ${cities[random1000].state}`,
-      title: `${randomElemFromArr(descriptors)} ${randomElemFromArr(places)}`
+      title: `${randomElemFromArr(descriptors)} ${randomElemFromArr(places)}`,
+      image: "https://source.unsplash.com/collection/9046579",
+      price: (random1000 % 20) + 10,
+      description:
+        "Asymmetrical pabst irony whatever, iPhone kale chips wolf raw denim flannel tilde kinfolk Brooklyn listicle. Dreamcatcher cold-pressed cardigan fingerstache. VHS biodiesel hashtag, hot chicken subway tile shoreditch vexillologist listicle franzen 90's squid +1 af. Seitan chartreuse fashion axe, gatekeep pok pok messenger bag deep v. Retro trust fund typewriter fixie, bespoke four dollar toast bushwick vegan roof party succulents etsy echo park tumblr lo-fi cliche. Pour-over art party photo booth +1 leggings, yuccie etsy la croix fashion axe vice tilde. Slow-carb helvetica salvia pork belly live-edge locavore vibecession semiotics jean shorts cardigan you probably haven't heard of them street art."
     });
 
     await camp.save();

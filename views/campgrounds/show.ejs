@@ -3,6 +3,13 @@
 <h1><%= campground.title %></h1>
 <h2><%= campground.location %></h2>
 
+<img
+  src="<%=campground.image%>"
+  class="img-fluid mx-auto rounded img-thumbnail"
+/>
+
+<p><%=campground.description%></p>
+
 <div>
   <a href="/campgrounds/<%=campground.id%>/edit">Update</a>
 </div>
