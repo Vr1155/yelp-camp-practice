@@ -71,6 +71,28 @@ app.use((req, res) => {
   res.status(404).send("NOT FOUND! - 5th middleware");
 });
 
+// creating our own custom error handling middleware:
+
+// if a middleware's callback contains 4 params, express will know it is a error handler.
+app.use((err, req, res, next) => {
+  // we can console log some string:
+  console.log("*****************************");
+  console.log("***********error*************");
+  console.log("*****************************");
+
+  // or we can console log the stack trace:
+  console.log(err);
+
+  // then pass the err object to next middleware to handle!
+  // note that if you dont pass the error object to the next middleware,
+  // it will not be able to handle that error!
+
+  // by default,
+  // if err obj is passed to next fn express prints the stack trace in dom if in dev environment.
+  // if err obj is not passed express simply prints "cannot GET /route_name"
+  next(err);
+});
+
 app.listen(3000, () => {
   console.log("serving on port 3000");
 });
