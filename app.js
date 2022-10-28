@@ -37,12 +37,20 @@ app.use("/dog", (req, res, next) => {
 const verifyPassword = (req, res, next) => {
   if (req.query.password === "secret123") {
     next();
-  } else {
-    res.status(401).send("Sorry! you need to give correct password!");
   }
+
+  // res.status(401).send("Sorry! you need to give correct password!");
+
+  // Here we can throw a custom error in express:
+  throw new Error("Password Required!!!!");
 };
 
 // GET requests
+
+app.get("/error", (req, res) => {
+  // This will throw an error since chicken does not exist:
+  chicken.fly();
+});
 
 app.get("/", (req, res) => {
   console.log("current time from / : ", req.currentTime);
