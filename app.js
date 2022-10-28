@@ -176,6 +176,8 @@ app.get("/async2/:flag", async (req, res, next) => {
 
 // we can also handle routes with async callbacks by wrapping it inside an async utility function which has a catch block:
 
+// This helps use avoid writing try catch everywhere, you can also move this utility function to a separate file if you want.
+
 const wrapAsyncUtilityFn = fn => {
   return function (req, res, next) {
     fn(req, res, next).catch(e => {
