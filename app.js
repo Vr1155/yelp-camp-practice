@@ -53,8 +53,12 @@ const verifyPassword = (req, res, next) => {
 // GET requests
 
 app.get("/error", (req, res) => {
-  // This will throw an error since chicken does not exist:
+  // This will throw a reference error since chicken does not exist:
   chicken.fly();
+
+  // this will throw a TypeError (assignment to const variable):
+  // const a = 1;
+  // a = 5;
 });
 
 app.get("/", (req, res) => {
@@ -247,6 +251,8 @@ const handleReferenceError = err => {
 app.use((err, req, res, next) => {
   // We can also handle errors of specific types separately using some helper functions.
   // For eg. mongoose has errors like validation error, cast error, etc.
+
+  // Similarly you can create error handling helper functions for other types of errors which are thrown by nodejs or mongoose.
 
   // but for now lets deal with reference errors:
 
