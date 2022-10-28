@@ -174,6 +174,40 @@ app.get("/async2/:flag", async (req, res, next) => {
   }
 });
 
+// we can also handle routes with async callbacks by wrapping it inside an async utility function which has a catch block:
+
+const wrapAsyncUtilityFn = fn => {
+  return function (req, res, next) {
+    fn(req, res, next).catch(e => {
+      next(e);
+    });
+  };
+};
+
+app.get(
+  "/async3/:flag",
+  wrapAsyncUtilityFn(async (req, res, next) => {
+    const resolveAfter2Seconds = flag => {
+      if (flag && flag === "ok")
+        return new Promise(resolve => {
+          setTimeout(() => {
+            resolve("resolved");
+          }, 1000);
+        });
+
+      return new Promise((resolve, reject) => {
+        throw new appError("flag was not right", 403);
+      });
+    };
+
+    const { flag } = req.params;
+
+    const response = await resolveAfter2Seconds(flag);
+    console.log("response:", response);
+    res.send(`Successful! This is the response: ${response}`);
+  })
+);
+
 // middleware for sending 404 if nothing was matched!
 app.use((req, res) => {
   res.status(404).send("NOT FOUND! - 5th middleware");
