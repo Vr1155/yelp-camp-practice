@@ -75,6 +75,50 @@ app.get("/admin", (req, res) => {
   throw new appError("You are not a admin", 403);
 });
 
+// a route for async fn error handling
+
+app.get("/async", async (req, res, next) => {
+  // creating some dummy async function:
+
+  // creating async functions is easier if you use promises like this:
+  const resolveAfter2Seconds = flag => {
+    if (flag)
+      return new Promise(resolve => {
+        setTimeout(() => {
+          resolve("resolved");
+        }, 2000);
+      });
+
+    return new Promise(reject => {
+      setTimeout(() => {
+        reject();
+      }, 2000);
+    });
+  };
+
+  // if flag was true, it will return "resolved", else it will return undefined.
+  const response = await resolveAfter2Seconds(true);
+
+  // lets do error handling for when it returns undefined.
+  if (!response) {
+    // note that you dont have to throw an error here, just create an error and pass it to next middleware in the chain.
+    // Also since we dont want to continue executing code further ahead in this middleware, we will return from this next function.
+    // It is important to use return here in this case, in case the next middleware is not sending a response,
+    // but here the error handling middleware is sending the error message and status code as response,
+    // no problem either way as only one response is needed to be sent.
+    return next(new appError("Undefined was obtained, flag was false", 404));
+  }
+
+  console.log("response:", response);
+
+  // if the response by async function is undefined, then throw our custom error:
+  // if (!response) {
+  //   throw new appError("This is an async error", 500);
+  // }
+
+  res.send(`Successful! This is the response: ${response}`);
+});
+
 // middleware for sending 404 if nothing was matched!
 app.use((req, res) => {
   res.status(404).send("NOT FOUND! - 5th middleware");
