@@ -1,5 +1,7 @@
 const express = require("express");
 const morgan = require("morgan");
+// importing custom error class:
+const appError = require("./appError");
 
 const app = express();
 
@@ -42,7 +44,10 @@ const verifyPassword = (req, res, next) => {
   // res.status(401).send("Sorry! you need to give correct password!");
 
   // Here we can throw a custom error in express:
-  throw new Error("Password Required!!!!");
+  // throw new Error("Password Required!!!!");
+
+  // Throwing our custom error class in express:
+  throw new appError("Error message from app Error", 500);
 };
 
 // GET requests
@@ -66,6 +71,10 @@ app.get("/secret", verifyPassword, (req, res) => {
   res.send("This is a secret message!");
 });
 
+app.get("/admin", (req, res) => {
+  throw new appError("You are not a admin", 403);
+});
+
 // middleware for sending 404 if nothing was matched!
 app.use((req, res) => {
   res.status(404).send("NOT FOUND! - 5th middleware");
@@ -74,23 +83,47 @@ app.use((req, res) => {
 // creating our own custom error handling middleware:
 
 // if a middleware's callback contains 4 params, express will know it is a error handler.
+// app.use((err, req, res, next) => {
+//   // we can console log some string:
+//   console.log("*****************************");
+//   console.log("***********error*************");
+//   console.log("*****************************");
+
+//   // or we can console log the stack trace:
+//   console.log(err);
+
+//   // then pass the err object to next middleware to handle!
+//   // note that if you dont pass the error object to the next middleware,
+//   // it will not be able to handle that error!
+
+//   // by default,
+//   // if err obj is passed to next fn express prints the default stack trace in dom if in dev environment.
+//   // if err obj is not passed express simply prints "cannot GET /route_name"
+//   next(err);
+// });
+
+// Another error handling middleware to throw our custom appError class!
 app.use((err, req, res, next) => {
-  // we can console log some string:
-  console.log("*****************************");
-  console.log("***********error*************");
-  console.log("*****************************");
+  // you can run this middleware with /error endpoint
 
-  // or we can console log the stack trace:
-  console.log(err);
+  // The error object has the following properties:
+  // message, status, stack.
+  // We can destructure these properties and modify them here
 
-  // then pass the err object to next middleware to handle!
-  // note that if you dont pass the error object to the next middleware,
-  // it will not be able to handle that error!
+  const {
+    message = "Hello from custom error class error middleware!",
+    status = 500,
+    stack
+  } = err; // incase status was undefined, assign 500 to it.
 
-  // by default,
-  // if err obj is passed to next fn express prints the stack trace in dom if in dev environment.
-  // if err obj is not passed express simply prints "cannot GET /route_name"
-  next(err);
+  // you can console log the stack trace:
+  console.log(
+    "This is the stack trace from custom error handling middleware:",
+    stack
+  );
+
+  // here message was already defined so the original value will be sent.
+  res.status(status).send(message);
 });
 
 app.listen(3000, () => {
