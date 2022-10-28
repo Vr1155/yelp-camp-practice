@@ -237,6 +237,25 @@ app.use((req, res) => {
 //   next(err);
 // });
 
+// this helper function is for dealing with a specific type of error like ReferenceError.
+const handleReferenceError = err => {
+  console.dir(err);
+  return new appError(`Reference Error... ${err.message}`, 400);
+};
+
+// error handling middleware that handles specific types of errors:
+app.use((err, req, res, next) => {
+  // We can also handle errors of specific types separately using some helper functions.
+  // For eg. mongoose has errors like validation error, cast error, etc.
+
+  // but for now lets deal with reference errors:
+
+  console.log("errname is: ", err.name);
+
+  if (err.name === "ReferenceError") err = handleReferenceError(err);
+  next(err);
+});
+
 // Another error handling middleware to throw our custom appError class!
 app.use((err, req, res, next) => {
   // you can run this middleware with /error endpoint
