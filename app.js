@@ -116,18 +116,13 @@ app.get(
 app.post(
   "/campgrounds",
   asyncCatcher(async (req, res, next) => {
-    // nesting code in try catch block so the error handling middleware can handle errors (if any errors are thrown)
-    try {
-      // body contains a json object as a value which had a key of "campground"
-      // {"campground":{"title":"camp","location":"location"}}
-      const campground = new Campground(req.body.campground);
-      // note that campground is now in a schema that we want, so we can call save on it:
-      await campground.save();
-      // now campground is a record in our database, we can access its id, so we can redirect:
-      res.redirect(`/campgrounds/${campground._id}`);
-    } catch (error) {
-      next(error);
-    }
+    // body contains a json object as a value which had a key of "campground"
+    // {"campground":{"title":"camp","location":"location"}}
+    const campground = new Campground(req.body.campground);
+    // note that campground is now in a schema that we want, so we can call save on it:
+    await campground.save();
+    // now campground is a record in our database, we can access its id, so we can redirect:
+    res.redirect(`/campgrounds/${campground._id}`);
   })
 );
 
@@ -136,16 +131,11 @@ app.post(
 app.put(
   "/campgrounds/:id/edit",
   asyncCatcher(async (req, res, next) => {
-    // nesting code in try catch block so the error handling middleware can handle errors (if any errors are thrown)
-    try {
-      const { id } = req.params;
-      const campground = await Campground.findByIdAndUpdate(id, {
-        ...req.body.campground
-      });
-      res.redirect(`/campgrounds/${campground._id}`);
-    } catch (error) {
-      next(error);
-    }
+    const { id } = req.params;
+    const campground = await Campground.findByIdAndUpdate(id, {
+      ...req.body.campground
+    });
+    res.redirect(`/campgrounds/${campground._id}`);
   })
 );
 
