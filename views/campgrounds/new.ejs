@@ -5,7 +5,20 @@
 <div class="row">
   <h1 class="text-center">New Campground</h1>
   <div class="col-6 offset-3">
-    <form action="/campgrounds" method="POST">
+    <!-- client side validations using bootstrap:
+    prevent default behaviour of html forms using novalidate boolean attribute
+    and adding a class "client-side-form-validation" which helps bootstrap identify the forms
+    that need to be validated in the script tag in boilerplate,
+    (you can name it anything as long as you change the class name in script too).
+    then, add required in all input fields
+    then add javascript in the script tag boilerplate file.
+    -->
+    <form
+      action="/campgrounds"
+      method="POST"
+      class="client-side-form-validation"
+      novalidate
+    >
       <!-- name="campground[key]" allows us to store user's response in an object and send it to server as post -->
 
       <div class="mb-3">
@@ -16,7 +29,9 @@
           type="text"
           id="title"
           name="campground[title]"
+          required
         />
+        <div class="valid-feedback">Looks good!</div>
       </div>
       <div class="mb-3">
         <label class="form-label" for="location">Location</label>
@@ -25,7 +40,9 @@
           type="text"
           id="location"
           name="campground[location]"
+          required
         />
+        <div class="valid-feedback">Looks good!</div>
       </div>
       <div class="mb-3">
         <label class="form-label" for="image">Image Url</label>
@@ -34,7 +51,9 @@
           type="text"
           id="image"
           name="campground[image]"
+          required
         />
+        <div class="valid-feedback">Looks good!</div>
       </div>
       <div class="mb-3">
         <label class="form-label" for="price">Campground Price</label>
@@ -48,7 +67,9 @@
             aria-label="price"
             aria-describedby="price-label"
             name="campground[price]"
+            required
           />
+          <div class="valid-feedback">Looks good!</div>
         </div>
       </div>
 
@@ -59,7 +80,9 @@
           type="text"
           id="description"
           name="campground[description]"
+          required
         ></textarea>
+        <div class="valid-feedback">Looks good!</div>
       </div>
       <div class="mb-3">
         <!-- default button type is submit for most browser, you can also create a reset button if you want! -->
