@@ -5,6 +5,8 @@ const Campground = require("./models/campground");
 const methodOverride = require("method-override");
 const morgan = require("morgan");
 const ejsMate = require("ejs-mate");
+const asyncCatcher = require("./utilities/asyncCatcher");
+
 const { nextTick } = require("process");
 
 // creating/connecting to a database called yelp-camp:
@@ -58,11 +60,14 @@ app.get("/", (req, res) => {
 });
 
 // async get request for displaying all campgrounds:
-app.get("/campgrounds", async (req, res) => {
-  // finding all campgrounds will take time so you need await here:
-  const campgrounds = await Campground.find({});
-  res.render("campgrounds/index", { campgrounds });
-});
+app.get(
+  "/campgrounds",
+  asyncCatcher(async (req, res) => {
+    // finding all campgrounds will take time so you need await here:
+    const campgrounds = await Campground.find({});
+    res.render("campgrounds/index", { campgrounds });
+  })
+);
 
 app.get("/campgrounds/new", (req, res) => {
   const campground = {};
@@ -71,71 +76,89 @@ app.get("/campgrounds/new", (req, res) => {
 
 // show details of individual campground using campground id:
 
-app.get("/campgrounds/:id", async (req, res) => {
-  // finding campground with that specific id using findById(),
-  // it will always return 1 record since ids are unique:
-  const campground = await Campground.findById(req.params.id);
-  res.render("campgrounds/show", { campground });
-});
+app.get(
+  "/campgrounds/:id",
+  asyncCatcher(async (req, res) => {
+    // finding campground with that specific id using findById(),
+    // it will always return 1 record since ids are unique:
+    const campground = await Campground.findById(req.params.id);
+    res.render("campgrounds/show", { campground });
+  })
+);
 
 // creates a dummy campground
-app.get("/makecampground", async (req, res) => {
-  const camp = new Campground({
-    title: "My Backyard",
-    description: "Cheap Camping"
-  });
-  await camp.save();
-  res.send(camp);
-});
+app.get(
+  "/makecampground",
+  asyncCatcher(async (req, res) => {
+    const camp = new Campground({
+      title: "My Backyard",
+      description: "Cheap Camping"
+    });
+    await camp.save();
+    res.send(camp);
+  })
+);
 
-app.get("/campgrounds/:id/edit", async (req, res) => {
-  const { id } = req.params;
-  const campground = await Campground.findById(id);
+app.get(
+  "/campgrounds/:id/edit",
+  asyncCatcher(async (req, res) => {
+    const { id } = req.params;
+    const campground = await Campground.findById(id);
 
-  res.render("campgrounds/edit", { campground });
-});
+    res.render("campgrounds/edit", { campground });
+  })
+);
 
 // All POST requests:
 
 // create new campground:
 
-app.post("/campgrounds", async (req, res, next) => {
-  // nesting code in try catch block so the error handling middleware can handle errors (if any errors are thrown)
-  try {
-    // body contains a json object as a value which had a key of "campground"
-    // {"campground":{"title":"camp","location":"location"}}
-    const campground = new Campground(req.body.campground);
-    // note that campground is now in a schema that we want, so we can call save on it:
-    await campground.save();
-    // now campground is a record in our database, we can access its id, so we can redirect:
-    res.redirect(`/campgrounds/${campground._id}`);
-  } catch (error) {
-    next(error);
-  }
-});
+app.post(
+  "/campgrounds",
+  asyncCatcher(async (req, res, next) => {
+    // nesting code in try catch block so the error handling middleware can handle errors (if any errors are thrown)
+    try {
+      // body contains a json object as a value which had a key of "campground"
+      // {"campground":{"title":"camp","location":"location"}}
+      const campground = new Campground(req.body.campground);
+      // note that campground is now in a schema that we want, so we can call save on it:
+      await campground.save();
+      // now campground is a record in our database, we can access its id, so we can redirect:
+      res.redirect(`/campgrounds/${campground._id}`);
+    } catch (error) {
+      next(error);
+    }
+  })
+);
 
 // All PUT requests:
 
-app.put("/campgrounds/:id/edit", async (req, res, next) => {
-  // nesting code in try catch block so the error handling middleware can handle errors (if any errors are thrown)
-  try {
-    const { id } = req.params;
-    const campground = await Campground.findByIdAndUpdate(id, {
-      ...req.body.campground
-    });
-    res.redirect(`/campgrounds/${campground._id}`);
-  } catch (error) {
-    next(error);
-  }
-});
+app.put(
+  "/campgrounds/:id/edit",
+  asyncCatcher(async (req, res, next) => {
+    // nesting code in try catch block so the error handling middleware can handle errors (if any errors are thrown)
+    try {
+      const { id } = req.params;
+      const campground = await Campground.findByIdAndUpdate(id, {
+        ...req.body.campground
+      });
+      res.redirect(`/campgrounds/${campground._id}`);
+    } catch (error) {
+      next(error);
+    }
+  })
+);
 
 // All DELETE requests:
 
-app.delete("/campgrounds/:id", async (req, res) => {
-  const { id } = req.params;
-  const campground = await Campground.findByIdAndDelete(id);
-  res.redirect("/campgrounds");
-});
+app.delete(
+  "/campgrounds/:id",
+  asyncCatcher(async (req, res) => {
+    const { id } = req.params;
+    const campground = await Campground.findByIdAndDelete(id);
+    res.redirect("/campgrounds");
+  })
+);
 
 // Error handling middleware, that will catch errors:
 app.use((err, req, res, next) => {
