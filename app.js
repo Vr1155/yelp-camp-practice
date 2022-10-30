@@ -5,6 +5,7 @@ const Campground = require("./models/campground");
 const methodOverride = require("method-override");
 const morgan = require("morgan");
 const ejsMate = require("ejs-mate");
+const { nextTick } = require("process");
 
 // creating/connecting to a database called yelp-camp:
 mongoose.connect("mongodb://localhost:27017/yelp-camp", {
@@ -98,24 +99,34 @@ app.get("/campgrounds/:id/edit", async (req, res) => {
 
 // create new campground:
 
-app.post("/campgrounds", async (req, res) => {
-  // body contains a json object as a value which had a key of "campground"
-  // {"campground":{"title":"camp","location":"location"}}
-  const campground = new Campground(req.body.campground);
-  // note that campground is now in a schema that we want, so we can call save on it:
-  await campground.save();
-  // now campground is a record in our database, we can access its id, so we can redirect:
-  res.redirect(`/campgrounds/${campground._id}`);
+app.post("/campgrounds", async (req, res, next) => {
+  // nesting code in try catch block so the error handling middleware can handle errors (if any errors are thrown)
+  try {
+    // body contains a json object as a value which had a key of "campground"
+    // {"campground":{"title":"camp","location":"location"}}
+    const campground = new Campground(req.body.campground);
+    // note that campground is now in a schema that we want, so we can call save on it:
+    await campground.save();
+    // now campground is a record in our database, we can access its id, so we can redirect:
+    res.redirect(`/campgrounds/${campground._id}`);
+  } catch (error) {
+    next(error);
+  }
 });
 
 // All PUT requests:
 
-app.put("/campgrounds/:id/edit", async (req, res) => {
-  const { id } = req.params;
-  const campground = await Campground.findByIdAndUpdate(id, {
-    ...req.body.campground
-  });
-  res.redirect(`/campgrounds/${campground._id}`);
+app.put("/campgrounds/:id/edit", async (req, res, next) => {
+  // nesting code in try catch block so the error handling middleware can handle errors (if any errors are thrown)
+  try {
+    const { id } = req.params;
+    const campground = await Campground.findByIdAndUpdate(id, {
+      ...req.body.campground
+    });
+    res.redirect(`/campgrounds/${campground._id}`);
+  } catch (error) {
+    next(error);
+  }
 });
 
 // All DELETE requests:
@@ -124,6 +135,11 @@ app.delete("/campgrounds/:id", async (req, res) => {
   const { id } = req.params;
   const campground = await Campground.findByIdAndDelete(id);
   res.redirect("/campgrounds");
+});
+
+// Error handling middleware, that will catch errors:
+app.use((err, req, res, next) => {
+  res.send("Oh no, we got an error!");
 });
 
 app.listen(3000, () => {
