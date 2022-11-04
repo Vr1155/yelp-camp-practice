@@ -120,6 +120,11 @@ app.post(
   asyncCatcher(async (req, res, next) => {
     // body contains a json object as a value which had a key of "campground"
     // {"campground":{"title":"camp","location":"location"}}
+
+    // if "campground" key is not present in the payload, throw an error:
+    if (!req.body.campground)
+      throw new ExpressError("Invalid/Insufficent data", 400);
+
     const campground = new Campground(req.body.campground);
     // note that campground is now in a schema that we want, so we can call save on it:
     await campground.save();
@@ -159,7 +164,7 @@ app.all("*", (req, res, next) => {
 
 // Error handling middleware, that will catch errors:
 app.use((err, req, res, next) => {
-  const { message, statusCode } = err;
+  const { message = "Something went wrong", statusCode = 500 } = err;
   res.status(statusCode).send(message);
 });
 
