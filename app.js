@@ -5,6 +5,8 @@ const Campground = require("./models/campground");
 const methodOverride = require("method-override");
 const morgan = require("morgan");
 const ejsMate = require("ejs-mate");
+
+const ExpressError = require("./utilities/ExpressError");
 const asyncCatcher = require("./utilities/asyncCatcher");
 
 const { nextTick } = require("process");
@@ -150,9 +152,15 @@ app.delete(
   })
 );
 
+// 404 handling route:
+app.all("*", (req, res, next) => {
+  next(new ExpressError("404, page not found!", 404));
+});
+
 // Error handling middleware, that will catch errors:
 app.use((err, req, res, next) => {
-  res.send("Oh no, we got an error!");
+  const { message, statusCode } = err;
+  res.status(statusCode).send(message);
 });
 
 app.listen(3000, () => {
