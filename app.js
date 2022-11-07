@@ -5,6 +5,7 @@ const Campground = require("./models/campground");
 const methodOverride = require("method-override");
 const morgan = require("morgan");
 const ejsMate = require("ejs-mate");
+const Joi = require("joi");
 
 const ExpressError = require("./utilities/ExpressError");
 const asyncCatcher = require("./utilities/asyncCatcher");
@@ -121,9 +122,45 @@ app.post(
     // body contains a json object as a value which had a key of "campground"
     // {"campground":{"title":"camp","location":"location"}}
 
+    // simple error throwing:
     // if "campground" key is not present in the payload, throw an error:
-    if (!req.body.campground)
-      throw new ExpressError("Invalid/Insufficent data", 400);
+    // if (!req.body.campground)
+    //   throw new ExpressError("Invalid/Insufficent data", 400);
+
+    // Server side data validation with joi:
+
+    const campgroundSchemaJoi = Joi.object({
+      campground: Joi.object({
+        title: Joi.string().required(),
+        price: Joi.number().required().min(0),
+        image: Joi.string().required(),
+        description: Joi.string().required(),
+        location: Joi.string().required()
+      }).required()
+    });
+
+    // validate() checks whether body is matching our Joi schema!
+    // result of validate(req.body) will be of following format:
+    // {
+    //   value: {
+    // original res.body
+    //          },
+    //   error: [Error [ValidationError]: "campground" is required]
+    //        {
+    //          _original: {},
+    //          details: [ [Object] ]
+    //        }
+    // }
+
+    const { error } = campgroundSchemaJoi.validate(req.body);
+
+    // notice that error.details is an array.
+
+    // if error exists, then throw expressError with all details joined by ",":
+    if (error) {
+      const msg = error.details.map(err => err.message).join(",");
+      throw new ExpressError(msg);
+    }
 
     const campground = new Campground(req.body.campground);
     // note that campground is now in a schema that we want, so we can call save on it:
