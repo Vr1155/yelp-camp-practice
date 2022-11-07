@@ -164,8 +164,12 @@ app.all("*", (req, res, next) => {
 
 // Error handling middleware, that will catch errors:
 app.use((err, req, res, next) => {
-  const { message = "Something went wrong", statusCode = 500 } = err;
-  res.status(statusCode).send(message);
+  // displaying the error view along with error msg and stack trace:
+
+  const { statusCode = 500 } = err;
+  if (!err.message) err.message = "Oh no! Something went wrong!";
+
+  res.status(statusCode).render("error", { err });
 });
 
 app.listen(3000, () => {
