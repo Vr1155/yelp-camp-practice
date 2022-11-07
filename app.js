@@ -5,7 +5,10 @@ const Campground = require("./models/campground");
 const methodOverride = require("method-override");
 const morgan = require("morgan");
 const ejsMate = require("ejs-mate");
-const Joi = require("joi");
+
+// importing joi schema for server side data validation:
+// destructuring so that you can scale by having different schemas!
+const { campgroundSchemaJoi } = require("./joiSchemas");
 
 const ExpressError = require("./utilities/ExpressError");
 const asyncCatcher = require("./utilities/asyncCatcher");
@@ -55,6 +58,45 @@ app.use(methodOverride("_method"));
 // using morgan middleware for logging, Using a predefined format string by passing "dev" to morgan.
 app.use(morgan("dev"));
 // you can also define your own format or build your own middleware (see different branch for middleware).
+
+// This function will do server side data validation using joi schema:
+const schemaValidatorJoi = (req, res, next) => {
+  // body contains a json object as a value which had a key of "campground"
+  // {"campground":{"title":"camp","location":"location"}}
+
+  // simple error throwing:
+  // if "campground" key is not present in the payload, throw an error:
+  // if (!req.body.campground)
+  //   throw new ExpressError("Invalid/Insufficent data", 400);
+
+  // as you can see this is tedious and quite difficult to scale.
+  // But here will use joi schema to make our job easier!
+
+  // validate() checks whether body is matching our Joi schema!
+  // result of validate(req.body) will be of following format:
+  // {
+  //   value: {
+  // original res.body
+  //          },
+  //   error: [Error [ValidationError]: "campground" is required]
+  //        {
+  //          _original: {},
+  //          details: [ [Object] ]
+  //        }
+  // }
+
+  const { error } = campgroundSchemaJoi.validate(req.body);
+
+  // notice that error.details is an array.
+
+  // if error exists, then throw expressError with all details joined by ",":
+  if (error) {
+    const msg = error.details.map(err => err.message).join(",");
+    next(new ExpressError(msg));
+  } else {
+    next();
+  }
+};
 
 // ALL GET REQUESTS:
 
@@ -118,50 +160,8 @@ app.get(
 
 app.post(
   "/campgrounds",
+  schemaValidatorJoi, // does the server side data validations before running the post route
   asyncCatcher(async (req, res, next) => {
-    // body contains a json object as a value which had a key of "campground"
-    // {"campground":{"title":"camp","location":"location"}}
-
-    // simple error throwing:
-    // if "campground" key is not present in the payload, throw an error:
-    // if (!req.body.campground)
-    //   throw new ExpressError("Invalid/Insufficent data", 400);
-
-    // Server side data validation with joi:
-
-    const campgroundSchemaJoi = Joi.object({
-      campground: Joi.object({
-        title: Joi.string().required(),
-        price: Joi.number().required().min(0),
-        image: Joi.string().required(),
-        description: Joi.string().required(),
-        location: Joi.string().required()
-      }).required()
-    });
-
-    // validate() checks whether body is matching our Joi schema!
-    // result of validate(req.body) will be of following format:
-    // {
-    //   value: {
-    // original res.body
-    //          },
-    //   error: [Error [ValidationError]: "campground" is required]
-    //        {
-    //          _original: {},
-    //          details: [ [Object] ]
-    //        }
-    // }
-
-    const { error } = campgroundSchemaJoi.validate(req.body);
-
-    // notice that error.details is an array.
-
-    // if error exists, then throw expressError with all details joined by ",":
-    if (error) {
-      const msg = error.details.map(err => err.message).join(",");
-      throw new ExpressError(msg);
-    }
-
     const campground = new Campground(req.body.campground);
     // note that campground is now in a schema that we want, so we can call save on it:
     await campground.save();
@@ -174,6 +174,7 @@ app.post(
 
 app.put(
   "/campgrounds/:id/edit",
+  schemaValidatorJoi, // does the server side data validations before running the put route
   asyncCatcher(async (req, res, next) => {
     const { id } = req.params;
     const campground = await Campground.findByIdAndUpdate(id, {
