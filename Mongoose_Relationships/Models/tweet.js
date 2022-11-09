@@ -49,3 +49,6 @@ const findTweet = async () => {
 };
 
 findTweet();
+
+// see this link for more info:
+// https://www.mongodb.com/blog/post/6-rules-of-thumb-for-mongodb-schema-design
