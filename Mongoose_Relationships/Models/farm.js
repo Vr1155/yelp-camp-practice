@@ -41,7 +41,7 @@ const Farm = mongoose.model("Farm", farmSchema);
 
 // ONE TO MANY RELATIONSHIP:
 
-// tedious way of "populating" the parent object with child object values:
+// tedious way of "populating" the parent object with child objectid:
 
 const makeFarm = async () => {
   const farm = new Farm({ name: "Full Belly Farms", city: "Guinda, CA" });
