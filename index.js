@@ -47,6 +47,7 @@ app.get("/farms/new", (req, res) => {
 
 // route to show details of 1 farm:
 app.get("/farms/:id", async (req, res) => {
+  // populate() "products" so we can list all products in farm details page:
   const farm = await Farm.findById(req.params.id).populate("products");
   res.render("farms/show", { farm });
 });
@@ -135,6 +136,7 @@ app.post("/products", async (req, res) => {
 
 app.get("/products/:id", async (req, res) => {
   const { id } = req.params;
+  // get a product by id and populate it with farm name only (using objectid of that farm).
   const product = await Product.findById(id).populate("farm", "name");
   res.render("products/show", { product });
 });
