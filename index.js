@@ -78,6 +78,8 @@ app.delete("/farms/:id", async (req, res) => {
   const farm = await Farm.findByIdAndDelete(req.params.id);
 
   res.redirect("/farms");
+
+  // It is highly recommended to read the mongoose documentation and experiment!
 });
 
 // post route to create 1 farm:

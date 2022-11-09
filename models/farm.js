@@ -47,6 +47,8 @@ farmSchema.post("findOneAndDelete", async function (farm) {
   }
 });
 
+// It is highly recommended to read the mongoose documentation and experiment!
+
 // What we're doing here is creating and exporting the Farm model.
 // This makes it so we can import the model into other parts of the program, like our routes
 const Farm = mongoose.model("Farm", farmSchema);
