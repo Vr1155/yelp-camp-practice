@@ -22,10 +22,27 @@ const farmSchema = new Schema({
   ]
 });
 
-// DELETE ALL ASSOCIATED PRODUCTS AFTER A FARM IS DELETED
+// IMPORTANT!
+// DELETE ALL ASSOCIATED PRODUCTS AFTER A FARM IS DELETED:
+
+// we also want related products to be deleted when a farm is deleted.
+// it can be done with ease using "pre" and "post" middleware.
+
+// "pre" is a middleware which runs before a target middleware is run,
+// "post" runs after a target middleware is run.
+// in "pre" we dont have access to the data which target middleware has access to.
+// however, in post middleware we have access to the data which target middleware had access to.
+// That data which is passed to post middleware is the farm document which was deleted.
+// we can get the objectid of all products in that farm document and use that to delete all products which were related to that farm.
+
+// notice that "findByIdAndDelete" triggers "findOneAndDelete",
+// and we can use "post" in "findOneAndDelete"
+
 farmSchema.post("findOneAndDelete", async function (farm) {
   if (farm.products.length) {
+    // get objectid of all products in farm document's product array, and delete them all.
     const res = await Product.deleteMany({ _id: { $in: farm.products } });
+    // console.log to see how many products were found and how many were deleted:
     console.log(res);
   }
 });

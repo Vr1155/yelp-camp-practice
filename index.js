@@ -52,8 +52,29 @@ app.get("/farms/:id", async (req, res) => {
   res.render("farms/show", { farm });
 });
 
-// route to delete 1 farm:
+// IMPORTANT:
+// route to delete 1 farm and all products related to it:
 app.delete("/farms/:id", async (req, res) => {
+  // we also want related products to be deleted when a farm is deleted.
+  // we can add additional logic here if we want to do it tediously.
+  // but it can be done with ease using "pre" and "post" middleware.
+
+  // "pre" is a middleware which runs before a target middleware is run,
+  // "post" runs after a target middleware is run.
+  // in "pre" we dont have access to the data which target middleware has access to.
+  // however, in post middleware we have access to the data which target middleware had access to.
+  // That data which is passed to post middleware is the farm document which was deleted.
+  // we can get the objectid of all products in that farm document and use that to delete all products which were related to that farm.
+
+  // notice that "findByIdAndDelete" triggers "findOneAndDelete",
+  // and we can use "post" in "findOneAndDelete"
+
+  // notice that "findOneAndDelete" is a query middleware which supports "post".
+  // so we can use "post" middleware to handled related product deletes.
+  // Notice that this doesn't affect other queries, only affects "findOneAndDelete" query.
+  // checkout the following docs for more info: https://mongoosejs.com/docs/middleware.html
+  // https://mongoosejs.com/docs/api.html#query_Query-post
+  // Also see farm.js model for how we used "pre"
   const farm = await Farm.findByIdAndDelete(req.params.id);
 
   res.redirect("/farms");
@@ -156,6 +177,7 @@ app.put("/products/:id", async (req, res) => {
   res.redirect(`/products/${product._id}`);
 });
 
+// delete a product:
 app.delete("/products/:id", async (req, res) => {
   const { id } = req.params;
   const deletedProduct = await Product.findByIdAndDelete(id);
