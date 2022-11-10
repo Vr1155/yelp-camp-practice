@@ -237,6 +237,21 @@ app.delete(
   })
 );
 
+app.delete(
+  "/campgrounds/:id/reviews/:reviewId",
+  asyncCatcher(async (req, res) => {
+    const { id, reviewId } = req.params;
+
+    //The $pull operator removes from an existing array all instances of a value or values that match a specified condition.
+    const cammpground = await Campground.findByIdAndUpdate(id, {
+      $pull: { reviews: reviewId }
+    });
+    const review = await Review.findByIdAndDelete(reviewId);
+
+    res.redirect(`/campgrounds/${id}`);
+  })
+);
+
 // 404 handling route:
 app.all("*", (req, res, next) => {
   next(new ExpressError("404, page not found!", 404));
