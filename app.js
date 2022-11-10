@@ -140,7 +140,12 @@ app.get(
   asyncCatcher(async (req, res) => {
     // finding campground with that specific id using findById(),
     // it will always return 1 record since ids are unique:
-    const campground = await Campground.findById(req.params.id);
+    const campground = await Campground.findById(req.params.id).populate(
+      "reviews"
+    );
+    // populate with reviews according to their objectid so we can show them on details page!
+    // notice that we have to write the name of the key which has value as array of objectids.
+    // in this case, "reviews" was the key which had stored the array of objectids which we want to populate with object values!
     res.render("campgrounds/show", { campground });
   })
 );
