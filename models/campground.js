@@ -8,7 +8,14 @@ const CampgroundSchema = new Schema({
   price: Number,
   image: String,
   description: String,
-  location: String
+  location: String,
+  // one to many relationship
+  reviews: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: "Review"
+    }
+  ]
 });
 
 // exporting schema:

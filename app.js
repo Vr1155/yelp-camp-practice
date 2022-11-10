@@ -1,7 +1,10 @@
 const express = require("express");
 const path = require("path");
 const mongoose = require("mongoose");
+
 const Campground = require("./models/campground");
+const Review = require("./models/review");
+
 const methodOverride = require("method-override");
 const morgan = require("morgan");
 const ejsMate = require("ejs-mate");
@@ -14,6 +17,7 @@ const ExpressError = require("./utilities/ExpressError");
 const asyncCatcher = require("./utilities/asyncCatcher");
 
 const { nextTick } = require("process");
+const review = require("./models/review");
 
 // creating/connecting to a database called yelp-camp:
 mongoose.connect("mongodb://localhost:27017/yelp-camp", {
@@ -167,6 +171,28 @@ app.post(
     await campground.save();
     // now campground is a record in our database, we can access its id, so we can redirect:
     res.redirect(`/campgrounds/${campground._id}`);
+  })
+);
+
+app.post(
+  "/campgrounds/:id/reviews",
+  asyncCatcher(async (req, res) => {
+    // only for debugging
+    // res.send(req.body);
+
+    // structure of review object:
+    //{"review":{"rating":"2","body":"testing review"}}
+
+    // notice that you have to await findById!
+
+    console.log(req.params.id);
+    const campground = await Campground.findById(req.params.id);
+    const review = new Review(req.body.review);
+
+    campground.reviews.push(review);
+    await review.save();
+    await campground.save();
+    res.redirect(`/campgrounds/${req.params.id}`);
   })
 );
 
