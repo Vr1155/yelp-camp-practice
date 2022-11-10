@@ -11,7 +11,7 @@ const ejsMate = require("ejs-mate");
 
 // importing joi schema for server side data validation:
 // destructuring so that you can scale by having different schemas!
-const { campgroundSchemaJoi } = require("./joiSchemas");
+const { campgroundSchemaJoi, reviewSchemaJoi } = require("./joiSchemas");
 
 const ExpressError = require("./utilities/ExpressError");
 const asyncCatcher = require("./utilities/asyncCatcher");
@@ -102,6 +102,16 @@ const schemaValidatorJoi = (req, res, next) => {
   }
 };
 
+const reviewSchmemaValidator = (req, res, next) => {
+  const { error } = reviewSchemaJoi.validate(req.body);
+  if (error) {
+    const msg = error.details.map(err => err.message).join(",");
+    next(new ExpressError(msg));
+  } else {
+    next();
+  }
+};
+
 // ALL GET REQUESTS:
 
 app.get("/", (req, res) => {
@@ -175,7 +185,8 @@ app.post(
 );
 
 app.post(
-  "/campgrounds/:id/reviews",
+  "/campgrounds/:id/reviews", // does server side validation for review post route
+  reviewSchmemaValidator,
   asyncCatcher(async (req, res) => {
     // only for debugging
     // res.send(req.body);
