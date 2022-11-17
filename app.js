@@ -1,6 +1,11 @@
 const express = require("express");
 const app = express();
 
+// Session storage is information related a user's session and it is stored on server-side.
+// for eg: items left in shopping cart on e-commerce site.
+
+// Cookies on the other hand are stored on client-side (user's browser or mobile app).
+
 // importing the express-session module from npm modules:
 const session = require("express-session");
 
