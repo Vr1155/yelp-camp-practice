@@ -9,8 +9,18 @@ const app = express();
 // importing the express-session module from npm modules:
 const session = require("express-session");
 
+const sessionOptions = {
+  secret: "This_is_a_poorly_stored_secret",
+  resave: false,
+  saveUninitialized: false
+};
+
+// resave and saveUninitialized are set to true as default but that default might get deprecated in future.
+// please refer to docs for more details:
+// https://www.npmjs.com/package/express-session
+
 // using session middleware and specifying a secret key.
-app.use(session({ secret: "This_is_a_poorly_stored_secret" }));
+app.use(session(sessionOptions));
 // With the inclusion of this middleware,
 // Whenever a user sends a request to this server for the first time,
 // A special session ID is sent in response and stored as a cookie in users browser,
