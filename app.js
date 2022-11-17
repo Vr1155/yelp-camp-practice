@@ -70,6 +70,18 @@ app.get("/greet", (req, res) => {
   res.send(`Hello and welcome back, ${req.session.username ?? "Anonymous"}`);
 });
 
+// It is also recomended to look into express-flash
+// It simply uses session storage to store message which can be displayed to users,
+// only for 1 time (like successfully added an item in db),
+// without redirecting to some other page.
+// You can add styling like bootstrap alert in your ejs template to show that flash message in.
+
+// once a flash message is set, we can either pass it into an ejs
+// or
+// we use res.locals which helps us include flash messages in every response,
+// so it can be directly accessed in every single ejs template and view without passing it.
+// https://expressjs.com/en/5x/api.html#res.locals
+
 app.listen(3000, () => {
   console.log("serving on port 3000");
 });
