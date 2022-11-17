@@ -54,6 +54,22 @@ app.get("/viewcount", (req, res) => {
   res.send(`You viewed this page ${req.session.count} times`);
 });
 
+// we can store other data in session store as well:
+app.get("/register", (req, res) => {
+  const { username = "Anonymous" } = req.query;
+  req.session.username = username;
+
+  res.redirect("/greet");
+});
+
+app.get("/greet", (req, res) => {
+  // everytime you hit this endpoint, username stored in session storage will be sent:
+
+  // Notice how i am using null coalescing operator,
+  // if username is null or undefinded, "Anonymous" is returned.
+  res.send(`Hello and welcome back, ${req.session.username ?? "Anonymous"}`);
+});
+
 app.listen(3000, () => {
   console.log("serving on port 3000");
 });
