@@ -69,6 +69,10 @@ app.use(methodOverride("_method"));
 app.use(morgan("dev"));
 // you can also define your own format or build your own middleware (see different branch for middleware).
 
+app.use(express.static(path.join(__dirname, "public")));
+// used path.join so that we can access static assets from public folder from anywhere,
+// (just like in views).
+
 // Importing all Routes Here:
 
 // "/campgrounds" routes:
