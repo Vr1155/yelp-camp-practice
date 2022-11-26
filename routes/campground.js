@@ -90,6 +90,12 @@ router.get(
     const campground = await Campground.findById(req.params.id).populate(
       "reviews"
     );
+
+    if (!campground) {
+      req.flash("error", "Cannot find that Campground");
+      res.redirect("/campgrounds");
+    }
+
     // populate with reviews according to their objectid so we can show them on details page!
     // notice that we have to write the name of the key which has value as array of objectids.
     // in this case, "reviews" was the key which had stored the array of objectids which we want to populate with object values!
@@ -103,6 +109,11 @@ router.get(
   asyncCatcher(async (req, res) => {
     const { id } = req.params;
     const campground = await Campground.findById(id);
+
+    if (!campground) {
+      req.flash("error", "Cannot find that Campground");
+      res.redirect("/campgrounds");
+    }
 
     res.render("campgrounds/edit", { campground });
   })
