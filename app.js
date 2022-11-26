@@ -14,6 +14,7 @@ const reviewRoutes = require("./routes/review");
 const methodOverride = require("method-override");
 const morgan = require("morgan");
 const ejsMate = require("ejs-mate");
+const session = require("express-session");
 
 // importing joi schema for server side data validation:
 // destructuring so that you can scale by having different schemas!
@@ -72,6 +73,30 @@ app.use(morgan("dev"));
 app.use(express.static(path.join(__dirname, "public")));
 // used path.join so that we can access static assets from public folder from anywhere,
 // (just like in views).
+
+// Setting up express session Here:
+
+const sessionConfig = {
+  // server's secret key that should be stored very securely:
+  secret: "thisshouldbeabettersecret",
+  // There are only to make deprecation warnings to go away:
+  resave: false,
+  saveUninitialized: false,
+  // cookie configurations:
+  cookie: {
+    // An HttpOnly Cookie is a tag added to a browser cookie that prevents client-side scripts from accessing data.
+    // It provides a gate that prevents the specialized cookie from being accessed by anything other than the server.
+    // As a result, even if a cross-site scripting (XSS) flaw exists, and a user accidentally accesses a link that exploits the flaw, the browser will not reveal the cookie to the third-party.
+    // Here’s an example – let’s say a browser detects a cookie containing the HttpOnly flag.  If the client-side code attempts to read the cookie, the browser will return an empty string as a result.  This helps prevent malicious (usually cross-site scripting (XSS)) code from sending the data to an attacker’s website.
+    httpOnly: true,
+
+    // This cookie will expire in a week from now:
+    expires: Date.now() + 1000 * 60 * 60 * 24 * 7,
+    maxAge: 1000 * 60 * 60 * 24 * 7
+  }
+};
+
+app.use(session(sessionConfig));
 
 // Importing all Routes Here:
 
