@@ -19,7 +19,14 @@
 
     <!-- notice that we are using - here, it Outputs the unescaped value into the template  -->
 
-    <main class="container mt-5 mb-5"><%- body%></main>
+    <main class="container mt-5 mb-5">
+      <!-- displaying success (if it exists) from res.locals.success which was set using flash message if something was successful -->
+      <!-- Notice that flash message shows up only once -->
+      <%=success%>
+
+      <!-- rest of the body: -->
+      <%- body%>
+    </main>
 
     <%- include("../partials/footer")%>
 

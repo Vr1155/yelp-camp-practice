@@ -15,6 +15,7 @@ const methodOverride = require("method-override");
 const morgan = require("morgan");
 const ejsMate = require("ejs-mate");
 const session = require("express-session");
+const flash = require("connect-flash");
 
 // importing joi schema for server side data validation:
 // destructuring so that you can scale by having different schemas!
@@ -96,7 +97,29 @@ const sessionConfig = {
   }
 };
 
+// using sessions with our predefined configs:
 app.use(session(sessionConfig));
+
+// Brief intro about flash:
+// The flash is a special area of the session used for storing messages.
+// Messages are written to the flash and cleared after being displayed to the user.
+// The flash is typically used in combination with redirects,
+// ensuring that the message is available to the next page that is to be rendered.
+
+// using flash messages:
+app.use(flash());
+
+// Middleware for handling flash messages (whereever they are used in the app):
+app.use((req, res, next) => {
+  // notice that res.locals are available everywhere,
+  // whereever res is used (including res.redirect),
+  // so whatever was stored in flash("success") by any routes by using req.flash("success"),
+  // it will be stored in res.locals.success,
+  // with help of this middleware.
+  res.locals.success = req.flash("success");
+  res.locals.error = req.flash("error");
+  next();
+});
 
 // Importing all Routes Here:
 

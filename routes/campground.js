@@ -117,6 +117,10 @@ router.post(
     const campground = new Campground(req.body.campground);
     // note that campground is now in a schema that we want, so we can call save on it:
     await campground.save();
+
+    // Show flash message on the screen:
+    req.flash("success", "Successfully created a new campground!");
+
     // now campground is a record in our database, we can access its id, so we can redirect:
     res.redirect(`/campgrounds/${campground._id}`);
   })
