@@ -8,6 +8,7 @@ const Review = require("./models/review");
 
 // importing routes:
 const campgroundRoutes = require("./routes/campground");
+const reviewRoutes = require("./routes/review");
 
 // importing other dependencies:
 const methodOverride = require("method-override");
@@ -68,68 +69,22 @@ app.use(methodOverride("_method"));
 app.use(morgan("dev"));
 // you can also define your own format or build your own middleware (see different branch for middleware).
 
-const reviewSchmemaValidator = (req, res, next) => {
-  const { error } = reviewSchemaJoi.validate(req.body);
-  if (error) {
-    const msg = error.details.map(err => err.message).join(",");
-    next(new ExpressError(msg));
-  } else {
-    next();
-  }
-};
-
 // Importing all Routes Here:
 
 // "/campgrounds" routes:
 app.use("/campgrounds", campgroundRoutes);
+// "/campgrounds/:id/reviews" aka review routes:
+app.use("/campgrounds/:id/reviews", reviewRoutes);
+// notice how we need id in our review route,
+// but express router handles params differently,
+// thankfully we can use mergeParams option in our review route so we can still get id,
+// from here into our review route.
 
 // ALL GET REQUESTS:
 
 app.get("/", (req, res) => {
   res.render("home");
 });
-
-// All POST requests:
-
-app.post(
-  "/campgrounds/:id/reviews", // does server side validation for review post route
-  reviewSchmemaValidator,
-  asyncCatcher(async (req, res) => {
-    // only for debugging
-    // res.send(req.body);
-
-    // structure of review object:
-    //{"review":{"rating":"2","body":"testing review"}}
-
-    // notice that you have to await findById!
-
-    console.log(req.params.id);
-    const campground = await Campground.findById(req.params.id);
-    const review = new Review(req.body.review);
-
-    campground.reviews.push(review);
-    await review.save();
-    await campground.save();
-    res.redirect(`/campgrounds/${req.params.id}`);
-  })
-);
-
-// All DELETE requests:
-
-app.delete(
-  "/campgrounds/:id/reviews/:reviewId",
-  asyncCatcher(async (req, res) => {
-    const { id, reviewId } = req.params;
-
-    //The $pull operator removes from an existing array all instances of a value or values that match a specified condition.
-    const cammpground = await Campground.findByIdAndUpdate(id, {
-      $pull: { reviews: reviewId }
-    });
-    const review = await Review.findByIdAndDelete(reviewId);
-
-    res.redirect(`/campgrounds/${id}`);
-  })
-);
 
 // 404 handling route:
 app.all("*", (req, res, next) => {
