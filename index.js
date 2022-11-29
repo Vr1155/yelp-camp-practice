@@ -50,11 +50,6 @@ app.get("/register", (req, res) => {
 
 app.post("/register", async (req, res) => {
   const { username, password } = req.body;
-  // creating hash from plaintext and saltRounds:
-  const hash = await bcrypt.hash(password, 12);
-
-  // just of checking hash:
-  // res.send(`username: ${username} password: ${hash}`);
 
   // findOne() returns null, if no matches are found in db.
   const userExists = await User.findOne({ username });
@@ -66,12 +61,19 @@ app.post("/register", async (req, res) => {
   // then we create those creds:
   if (userExists === null && password != "") {
     // check whether data is according to schema:
+
+    // instead of hashing passwords here, we will create a "pre" middleware for "save" in our "User" model,
+    // which does the job of hashing password before saving them in db.
+    // see users.js to find that "pre" middleware.
+
     const newUser = new User({
       username,
-      password: hash
+      password
     });
 
-    // if yes, save data into the database:
+    // if yes, save data into the database.
+    // note that "pre" middleware for save() does the job of hashing passwords.
+    // see users.js to find that "pre" middleware.
     await newUser.save();
 
     // verify by going to mongosh and type the following commands:
@@ -108,19 +110,14 @@ app.post("/login", async (req, res) => {
   // Also we are not storing empty string passwords in our db,
   // so if username was wrong, we can compare input password with "" so login will always fail.
 
-  // search the username in our db:
-  const user = await User.findOne({ username });
+  // validate/check the username and password in our db,
+  // using findAndValidate static function:
+  const foundUser = await User.findAndValidate(username, password);
 
-  // search the passwords in our db:
-  const result = await bcrypt.compare(
-    password,
-    user && user.password ? user.password : ""
-  );
-
-  if (result) {
+  if (foundUser) {
     // if login is successful, then set session id to user_id
     // and redirect to "/secret"
-    req.session.user_id = user._id;
+    req.session.user_id = foundUser._id;
     res.redirect("/secret");
   } else {
     // if login fails, redirect to "/login"
