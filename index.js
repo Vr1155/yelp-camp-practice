@@ -18,9 +18,13 @@ const User = require("./models/users");
 
 // Finally importing bcrypt for hashing and salting passwords:
 const bcrypt = require("bcrypt");
+// importing express-sessions for session management:
+const session = require("express-session");
 
 // middleware parsing body:
 app.use(express.urlencoded({ extended: true }));
+// middleware for express sessions:
+app.use(session({ secret: "not_a_good_way_to_store_a_secret" }));
 
 // routes:
 
@@ -63,10 +67,15 @@ app.post("/register", async (req, res) => {
     // use authDemo
     // show collections
     // db.users.find()
-  }
 
-  // finally redirect to home page:
-  res.redirect("/");
+    // once registeration is successful,
+    // set the session token and redirect to "/secret":
+    req.session.user_id = newUser._id;
+    res.redirect("/secret");
+  } else {
+    // if registeration failed, redirect to home page:
+    res.redirect("/");
+  }
 });
 
 app.get("/login", (req, res) => {
@@ -97,15 +106,27 @@ app.post("/login", async (req, res) => {
   );
 
   if (result) {
-    res.send("Yay! your creds are correct!");
+    // if login is successful, then set session id to user_id
+    // and redirect to "/secret"
+    req.session.user_id = user._id;
+    res.redirect("/secret");
   } else {
-    res.send("username or password are wrong!");
+    // if login fails, redirect to "/login"
+    res.redirect("/login");
   }
 });
 
 // This route should only be accessible if user is logged in! (Work in progress!)
 app.get("/secret", (req, res) => {
-  res.send("This is a secret route!");
+  if (req.session.user_id) {
+    // if session token is present, then show message:
+    res.send(
+      "This is a secret route! You cannot see this if you are not logged in!"
+    );
+  } else {
+    // otherwise redirect to login:
+    res.redirect("/login");
+  }
 });
 
 app.listen(3000, () => {
