@@ -119,14 +119,22 @@ app.post("/login", async (req, res) => {
 // This route should only be accessible if user is logged in! (Work in progress!)
 app.get("/secret", (req, res) => {
   if (req.session.user_id) {
-    // if session token is present, then show message:
-    res.send(
-      "This is a secret route! You cannot see this if you are not logged in!"
-    );
+    // if session token is present, then show secret page:
+    res.render("secret");
   } else {
     // otherwise redirect to login:
     res.redirect("/login");
   }
+});
+
+app.post("/logout", (req, res) => {
+  // we can just set user_id to null or .....
+  // req.session.user_id = null;
+
+  // we can use req.session.destroy() to completely delete the session:
+  req.session.destroy();
+
+  res.redirect("/login");
 });
 
 app.listen(3000, () => {
