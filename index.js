@@ -16,17 +16,46 @@ mongoose.connect("mongodb://localhost:27017/authDemo", {
 // Importing models:
 const User = require("./models/users");
 
+// Finally importing bcrypt for hashing and salting passwords:
+const bcrypt = require("bcrypt");
+
 // middleware parsing body:
 app.use(express.urlencoded({ extended: true }));
 
 // routes:
 
+app.get("/", (req, res) => {
+  res.send("Welcome to home page!");
+});
+
 app.get("/register", (req, res) => {
   res.render("register");
 });
 
-app.post("/register", (req, res) => {
-  res.send(req.body);
+app.post("/register", async (req, res) => {
+  const { username, password } = req.body;
+  // creating hash from plaintext and saltRounds:
+  const hash = await bcrypt.hash(password, 12);
+
+  // just of checking hash:
+  // res.send(`username: ${username} password: ${hash}`);
+
+  // check whether data is according to schema:
+  const newUser = new User({
+    username,
+    password: hash
+  });
+
+  // if yes, save data into the database:
+  await newUser.save();
+
+  // verify by going to mongosh and type the following commands:
+  // show dbs
+  // use authDemo
+  // show collections
+  // db.users.find()
+
+  res.redirect("/");
 });
 
 app.get("/secret", (req, res) => {
