@@ -26,6 +26,18 @@ app.use(express.urlencoded({ extended: true }));
 // middleware for express sessions:
 app.use(session({ secret: "not_a_good_way_to_store_a_secret" }));
 
+// This function works as a middleware,
+// that verifies whether user is logged in or not:
+const requireLogin = (req, res, next) => {
+  // If session was not set (aka user was not logged in),
+  // simply redirect to login page:
+  if (!req.session.user_id) {
+    return res.redirect("/login");
+  }
+  // otherwise continue to the route:
+  next();
+};
+
 // routes:
 
 app.get("/", (req, res) => {
@@ -116,15 +128,20 @@ app.post("/login", async (req, res) => {
   }
 });
 
+// we will use "requireLogin" as middleware,
+// which will verify whether user is logged in or not
+// If a user is logged in we will continue to this route,
+// if a user isn't logged in they will be redirected to login page.
+
 // This route should only be accessible if user is logged in! (Work in progress!)
-app.get("/secret", (req, res) => {
-  if (req.session.user_id) {
-    // if session token is present, then show secret page:
-    res.render("secret");
-  } else {
-    // otherwise redirect to login:
-    res.redirect("/login");
-  }
+app.get("/secret", requireLogin, (req, res) => {
+  // if session token is present, then show secret page:
+  res.render("secret");
+});
+
+// similarly this middleware also works for other protected routes:
+app.get("/topsecret", requireLogin, (req, res) => {
+  res.send("This is a top secret!");
 });
 
 app.post("/logout", (req, res) => {
