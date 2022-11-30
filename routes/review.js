@@ -13,8 +13,12 @@ const Campground = require("../models/campground");
 const Review = require("../models/review");
 
 // some other dependencies updated for this route:
+
+// importing joi schema for server side data validation:
+// destructuring so that you can scale by having different schemas!
 const { reviewSchemaJoi } = require("../joiSchemas");
 const ExpressError = require("../utilities/ExpressError");
+// for catching async errors:
 const asyncCatcher = require("../utilities/asyncCatcher");
 
 // Joi Schema Validator for review model:

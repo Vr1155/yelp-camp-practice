@@ -7,8 +7,12 @@ const router = express.Router();
 const Campground = require("../models/campground");
 
 // some other dependencies updated for this route:
+
+// importing joi schema for server side data validation:
+// destructuring so that you can scale by having different schemas!
 const { campgroundSchemaJoi } = require("../joiSchemas");
 const ExpressError = require("../utilities/ExpressError");
+// for catching async errors:
 const asyncCatcher = require("../utilities/asyncCatcher");
 
 // This function will do server side data validation using joi schema:
