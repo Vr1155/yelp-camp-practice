@@ -79,4 +79,19 @@ router.post(
   }
 );
 
+router.get("/logout", (req, res) => {
+  // passport.js handles logout for us by deserializing/removing the user session.
+  // apparently the newer version of passport.js requires us to pass a callback,
+  // which executes after logging out.
+  // we will throw an error is error occurs,
+  // or else we will flash message and redirect to campgrounds:
+  req.logout(err => {
+    if (err) {
+      next(err);
+    }
+    req.flash("success", "Logout successful! Goodbye!");
+    res.redirect("/campgrounds");
+  });
+});
+
 module.exports = router;
