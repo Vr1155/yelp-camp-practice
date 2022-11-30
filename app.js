@@ -3,12 +3,13 @@ const path = require("path");
 const mongoose = require("mongoose");
 
 // importing models
-const Campground = require("./models/campground");
-const Review = require("./models/review");
+// importing "User" model as well (which has the plugin passport-local-mongoose):
+const User = require("./models/user");
 
 // importing routes:
 const campgroundRoutes = require("./routes/campground");
 const reviewRoutes = require("./routes/review");
+const userRoutes = require("./routes/user");
 
 // importing other dependencies:
 const methodOverride = require("method-override");
@@ -20,18 +21,9 @@ const flash = require("connect-flash");
 // importing passport dependencies for authentication:
 const passport = require("passport");
 const localStrategy = require("passport-local");
-// importing "User" model as well (which has the plugin passport-local-mongoose):
-const User = require("./models/user");
 
-// importing joi schema for server side data validation:
-// destructuring so that you can scale by having different schemas!
-const { campgroundSchemaJoi, reviewSchemaJoi } = require("./joiSchemas");
-
+// Other dependencies for error handling:
 const ExpressError = require("./utilities/ExpressError");
-const asyncCatcher = require("./utilities/asyncCatcher");
-
-const { nextTick } = require("process");
-const review = require("./models/review");
 
 // creating/connecting to a database called yelp-camp:
 mongoose.connect("mongodb://localhost:27017/yelp-camp", {
@@ -163,6 +155,9 @@ passport.deserializeUser(User.deserializeUser());
 app.use("/campgrounds", campgroundRoutes);
 // "/campgrounds/:id/reviews" aka review routes:
 app.use("/campgrounds/:id/reviews", reviewRoutes);
+// user routes should be public initially other subroutes like
+// "/login", "/register" are specified inside userRoutes
+app.use("/", userRoutes);
 // notice how we need id in our review route,
 // but express router handles params differently,
 // thankfully we can use mergeParams option in our review route so we can still get id,
