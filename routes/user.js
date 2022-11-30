@@ -8,6 +8,9 @@ const User = require("../models/user");
 
 // some other dependencies updated for this route:
 const asyncCatcher = require("../utilities/asyncCatcher");
+const passport = require("passport");
+
+// Register routes:
 
 router.get("/register", (req, res) => {
   // show the register page:
@@ -39,6 +42,41 @@ router.post(
       res.redirect("register");
     }
   })
+);
+
+// Login routes:
+
+router.get("/login", (req, res) => {
+  // show the login page:
+  res.render("users/login");
+});
+
+// passport has authenticate() which can act as a middleware,
+
+// Notice that, authenticate() automatically parses the request body for username and pasword.
+// and it checks whether the username and hash of that password exits in db or not.
+// All of this is done automatically by passport.
+// This is because we had the following lines in app.js:
+// 1. passport.use(new localStrategy(User.authenticate()));
+// 2. passport.serializeUser(User.serializeUser());
+// 3. passport.deserializeUser(User.deserializeUser());
+
+// All of this helps make work of authentication easier and hides internal details,
+// of how authentication was implemented.
+
+// we need to specify auth strategy ("local" in this case).
+// we can also specify whether to redirect or display flash messages in case of wrong creds.
+
+router.post(
+  "/login",
+  passport.authenticate("local", {
+    failureFlash: true,
+    failureRedirect: "/login"
+  }),
+  (req, res) => {
+    req.flash("success", "Login Successful! Welcome back!");
+    res.redirect("/campgrounds");
+  }
 );
 
 module.exports = router;
