@@ -14,6 +14,9 @@ const Review = require("../models/review");
 
 // some other dependencies updated for this route:
 
+// importing authMiddleware for protecting new/delete review routes:
+const { isloggedIn } = require("../authMiddleware");
+
 // importing joi schema for server side data validation:
 // destructuring so that you can scale by having different schemas!
 const { reviewSchemaJoi } = require("../joiSchemas");
@@ -36,6 +39,7 @@ const reviewSchmemaValidator = (req, res, next) => {
 
 router.post(
   "/", // does server side validation for review post route
+  isloggedIn,
   reviewSchmemaValidator,
   asyncCatcher(async (req, res) => {
     // only for debugging
@@ -64,6 +68,7 @@ router.post(
 
 router.delete(
   "/:reviewId",
+  isloggedIn,
   asyncCatcher(async (req, res) => {
     const { id, reviewId } = req.params;
 

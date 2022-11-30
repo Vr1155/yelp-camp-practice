@@ -8,6 +8,9 @@ const Campground = require("../models/campground");
 
 // some other dependencies updated for this route:
 
+// importing authMiddleware for protecting new/edit/delete campground routes:
+const { isloggedIn } = require("../authMiddleware");
+
 // importing joi schema for server side data validation:
 // destructuring so that you can scale by having different schemas!
 const { campgroundSchemaJoi } = require("../joiSchemas");
@@ -64,7 +67,7 @@ router.get(
   })
 );
 
-router.get("/new", (req, res) => {
+router.get("/new", isloggedIn, (req, res) => {
   const campground = {};
   res.render("campgrounds/new", { campground });
 });
@@ -72,6 +75,7 @@ router.get("/new", (req, res) => {
 // creates a dummy campground with some dummy values [to be deprecated]:
 router.get(
   "/makecampground",
+  isloggedIn, // need to login to create campground
   asyncCatcher(async (req, res) => {
     const camp = new Campground({
       title: "My Backyard",
@@ -110,6 +114,7 @@ router.get(
 // go to edit page of a campground:
 router.get(
   "/:id/edit",
+  isloggedIn, // need to login to edit campground
   asyncCatcher(async (req, res) => {
     const { id } = req.params;
     const campground = await Campground.findById(id);
@@ -127,6 +132,7 @@ router.get(
 
 router.post(
   "/",
+  isloggedIn, // need to login to create new campground
   schemaValidatorJoi, // does the server side data validations before running the post route
   asyncCatcher(async (req, res, next) => {
     const campground = new Campground(req.body.campground);
@@ -144,6 +150,7 @@ router.post(
 // edit campground details into db:
 router.put(
   "/:id/edit",
+  isloggedIn, // need to login to edit campground
   schemaValidatorJoi, // does the server side data validations before running the put route
   asyncCatcher(async (req, res, next) => {
     const { id } = req.params;
@@ -159,6 +166,7 @@ router.put(
 
 router.delete(
   "/:id",
+  isloggedIn, // need to login to delete campground
   asyncCatcher(async (req, res) => {
     const { id } = req.params;
     const campground = await Campground.findByIdAndDelete(id);
