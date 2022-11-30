@@ -13,12 +13,13 @@ const userSchema = new Schema({
   }
 });
 
-// First you need to plugin Passport-Local Mongoose into your User schema.
+// First you need to plugin "passport-local-mongoose" into your User schema.
 
+// With help of "passport-local-mongoose" npm package,
 // You're free to define your User how you like.
-// Passport-Local Mongoose will add a username, hash and salt field to store the username, the hashed password and the salt value.
+// passport-local-mongoose will add a username, hash and salt field to store the username, the hashed password and the salt value.
 // Passport hides all the implementation details from you and that is why its very convenient.
-// Additionally Passport-Local Mongoose adds some methods to your Schema.
+// Additionally passport-local-mongoose adds some methods to your Schema.
 // See the API Documentation section for more details.
 
 // npm docs: https://www.npmjs.com/package/passport-local-mongoose
