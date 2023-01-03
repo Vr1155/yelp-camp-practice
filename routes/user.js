@@ -85,11 +85,27 @@ router.post(
   "/login",
   passport.authenticate("local", {
     failureFlash: true,
-    failureRedirect: "/login"
+    failureRedirect: "/login",
+    keepSessionInfo: true
   }),
   (req, res) => {
+    // !!! IMPORTANT: Important to include "keepSessionInfo:true" as option above,
+    // since that helps us track the originalUrl,
+    // which is stored in req.session.returnTo.
+
+    // Just to show that passport.js modifies session after successful login,
+    // Therefore we need to specify option:
+    // keepSessionInfo: true
+    // while logging in.
+
+    // console.log("from login route: ", req.session);
+
     req.flash("success", "Login Successful! Welcome back!");
-    res.redirect("/campgrounds");
+
+    // Incase user was trying to do something before logging in, we will redirect him back to it.
+    const redirectUrl = req.session.returnTo || "/campgrounds";
+    delete req.session.returnTo;
+    res.redirect(redirectUrl);
   }
 );
 
