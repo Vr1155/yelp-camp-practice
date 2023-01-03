@@ -19,7 +19,7 @@ router.get("/register", (req, res) => {
 
 router.post(
   "/register",
-  asyncCatcher(async (req, res) => {
+  asyncCatcher(async (req, res, next) => {
     // just for debugging:
     // res.send(req.body);
 
@@ -33,9 +33,23 @@ router.post(
       });
       // use static plugin method register() from "passport-local-mongoose" to register user:
       const newUser = await User.register(user, password);
-      // display flash msg and redirect to all campgrounds:
-      req.flash("success", "Registeration Successful! Welcome to YelpCamp!");
-      res.redirect("/campgrounds");
+
+      // If registeration details are submitted in db, we want to login.
+      // we will use req.login,
+      // this login function is provided by passport.js on req obj.
+      // See old docs: https://web.archive.org/web/20211129111948/http://www.passportjs.org/docs/login/
+      // see new docs: https://www.passportjs.org/tutorials/password/signup/
+      // we have to use req.login here since we dont have user already stored in db.
+      // Just another passport.js quirk.
+      req.login(newUser, err => {
+        if (err) {
+          // let the error handlers handle the error:
+          return next(err);
+        }
+        // display flash msg and redirect to all campgrounds:
+        req.flash("success", "Registeration Successful! Welcome to YelpCamp!");
+        res.redirect("/campgrounds");
+      });
     } catch (e) {
       // if anything fails, display error flash msg and redirect back to register page:
       req.flash("error", e.message);
