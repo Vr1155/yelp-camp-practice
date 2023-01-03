@@ -150,10 +150,6 @@ app.use((req, res, next) => {
   // This important for showing extra functionality like "logout" for already logged in users,
   // and functionality like "login/register" incase noone has logged in.
   res.locals.currentUser = req.user;
-  console.log(
-    "finally req.user from flash middleware :- ",
-    res.locals.currentUser
-  );
 
   // notice that res.locals are available everywhere,
   // whereever res is used (including res.redirect),
