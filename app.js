@@ -139,6 +139,7 @@ passport.deserializeUser(User.deserializeUser());
 
 // ========================
 
+// All calls should go through this middleware.
 // This part had to be moved down since we are using "req.user" which is set up by passport.js
 // using req.user we can deserialize user info from a logged in user and store it in res.locals variable,
 // so it can be accessed by any ejs template.
