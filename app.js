@@ -107,18 +107,6 @@ app.use(session(sessionConfig));
 // using flash messages:
 app.use(flash());
 
-// Middleware for handling flash messages (whereever they are used in the app):
-app.use((req, res, next) => {
-  // notice that res.locals are available everywhere,
-  // whereever res is used (including res.redirect),
-  // so whatever was stored in flash("success") by any routes by using req.flash("success"),
-  // it will be stored in res.locals.success,
-  // with help of this middleware.
-  res.locals.success = req.flash("success");
-  res.locals.error = req.flash("error");
-  next();
-});
-
 // Setting up passport middlewares for authentication:
 
 // Note that passport uses express-session for auth.
@@ -148,6 +136,36 @@ passport.use(new localStrategy(User.authenticate()));
 // here again, passport-local-mongoose comes to our help with its static methods from plugin.
 passport.serializeUser(User.serializeUser());
 passport.deserializeUser(User.deserializeUser());
+
+// ========================
+
+// This part had to be moved down since we are using "req.user" which is set up by passport.js
+// using req.user we can deserialize user info from a logged in user and store it in res.locals variable,
+// so it can be accessed by any ejs template.
+// This allows us to show ui components that only logged in user can see for eg. "logout" button.
+
+// Middleware for handling flash messages or data stored in locals (whereever they are used in the app):
+app.use((req, res, next) => {
+  // we will have access to current user (which has logged in successfully) everywhere in our app.
+  // This important for showing extra functionality like "logout" for already logged in users,
+  // and functionality like "login/register" incase noone has logged in.
+  res.locals.currentUser = req.user;
+  console.log(
+    "finally req.user from flash middleware :- ",
+    res.locals.currentUser
+  );
+
+  // notice that res.locals are available everywhere,
+  // whereever res is used (including res.redirect),
+  // so whatever was stored in flash("success") by any routes by using req.flash("success"),
+  // it will be stored in res.locals.success,
+  // with help of this middleware.
+  res.locals.success = req.flash("success");
+  res.locals.error = req.flash("error");
+  next();
+});
+
+// ========================
 
 // Importing all Routes Here:
 
