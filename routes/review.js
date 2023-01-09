@@ -15,25 +15,10 @@ const Review = require("../models/review");
 // some other dependencies updated for this route:
 
 // importing authMiddleware for protecting new/delete review routes:
-const { isloggedIn } = require("../authMiddleware");
+const { isloggedIn, reviewSchmemaValidator } = require("../authMiddleware");
 
-// importing joi schema for server side data validation:
-// destructuring so that you can scale by having different schemas!
-const { reviewSchemaJoi } = require("../joiSchemas");
-const ExpressError = require("../utilities/ExpressError");
 // for catching async errors:
 const asyncCatcher = require("../utilities/asyncCatcher");
-
-// Joi Schema Validator for review model:
-const reviewSchmemaValidator = (req, res, next) => {
-  const { error } = reviewSchemaJoi.validate(req.body);
-  if (error) {
-    const msg = error.details.map(err => err.message).join(",");
-    next(new ExpressError(msg));
-  } else {
-    next();
-  }
-};
 
 // All POST requests:
 
