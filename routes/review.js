@@ -15,7 +15,11 @@ const Review = require("../models/review");
 // some other dependencies updated for this route:
 
 // importing authMiddleware for protecting new/delete review routes:
-const { isloggedIn, reviewSchmemaValidator } = require("../authMiddleware");
+const {
+  isloggedIn,
+  reviewSchmemaValidator,
+  isReviewAuthor
+} = require("../authMiddleware");
 
 // for catching async errors:
 const asyncCatcher = require("../utilities/asyncCatcher");
@@ -34,10 +38,12 @@ router.post(
     //{"review":{"rating":"2","body":"testing review"}}
 
     // notice that you have to await findById!
+    // console.log(req.params.id);
 
-    console.log(req.params.id);
     const campground = await Campground.findById(req.params.id);
     const review = new Review(req.body.review);
+    // reviews will have reviewAuthors same way campgrounds have authors:
+    review.author = req.user._id;
 
     campground.reviews.push(review);
     await review.save();
@@ -54,6 +60,7 @@ router.post(
 router.delete(
   "/:reviewId",
   isloggedIn,
+  isReviewAuthor,
   asyncCatcher(async (req, res) => {
     const { id, reviewId } = req.params;
 

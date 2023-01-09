@@ -95,13 +95,32 @@ module.exports.isAuthor = async (req, res, next) => {
 
   // =========
   // This piece of code is for authorization:
-  // first find the campground (we already found it above!, so use it),
+  // first find the campground,
   const campground = await Campground.findById(id);
   // then check whether currentUser is authorized or not:
   if (!campground.author.equals(req.user._id)) {
     // if user is not authorized, show error and RETURN after redirecting to show page:
     req.flash("error", "You do not have the permission to do that!");
     return res.redirect(`/campgrounds/${campground._id}`);
+  }
+  // if correct user is logged in, then continue:
+  next();
+  // =========
+};
+
+module.exports.isReviewAuthor = async (req, res, next) => {
+  // getting reviewId and campgroundId from the params:
+  const { id, reviewId } = req.params;
+
+  // =========
+  // This piece of code is for authorization:
+  // first find the review,
+  const review = await Review.findById(reviewId);
+  // then check whether currentUser is authorized or not:
+  if (!review.author.equals(req.user._id)) {
+    // if user is not authorized, show error and RETURN after redirecting to show page:
+    req.flash("error", "You do not have the permission to do that!");
+    return res.redirect(`/campgrounds/${id}`);
   }
   // if correct user is logged in, then continue:
   next();

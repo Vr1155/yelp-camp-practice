@@ -57,9 +57,12 @@ router.get(
     // finding campground with that specific id using findById(),
     // it will always return 1 record since ids are unique.
     // Notice that reviews and author are stored as reference in Campground model,
-    // so we need to populate them by getting the data from Review and User model into Campground model where it was referenced.
+    // so we need to populate them by getting the author data from User model into Campground model where it was referenced.
+    // Also we need to populate Review model with its own review authors (which were stored as User obj ids),
+    // this is done with nested populate as shown below,
+    // which populates reviews with review authors:
     const campground = await Campground.findById(req.params.id)
-      .populate("reviews")
+      .populate({ path: "reviews", populate: { path: "author" } }) // nested populate
       .populate("author");
 
     // now review and author data is in Campground.
