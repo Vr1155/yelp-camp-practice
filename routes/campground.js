@@ -94,10 +94,15 @@ router.get(
   "/:id",
   asyncCatcher(async (req, res) => {
     // finding campground with that specific id using findById(),
-    // it will always return 1 record since ids are unique:
-    const campground = await Campground.findById(req.params.id).populate(
-      "reviews"
-    );
+    // it will always return 1 record since ids are unique.
+    // Notice that reviews and author are stored as reference in Campground model,
+    // so we need to populate them by getting the data from Review and User model into Campground model where it was referenced.
+    const campground = await Campground.findById(req.params.id)
+      .populate("reviews")
+      .populate("author");
+
+    // now review and author data is in Campground.
+    console.log(campground);
 
     if (!campground) {
       req.flash("error", "Cannot find that Campground");
@@ -136,6 +141,12 @@ router.post(
   schemaValidatorJoi, // does the server side data validations before running the post route
   asyncCatcher(async (req, res, next) => {
     const campground = new Campground(req.body.campground);
+
+    // since we are storing campground authors as ids,
+    // user._id is provided by passport,
+    // we will set reference to author (which is done with that user's object id):
+    campground.author = req.user._id;
+
     // note that campground is now in a schema that we want, so we can call save on it:
     await campground.save();
 

@@ -16,7 +16,14 @@ const CampgroundSchema = new Schema({
       type: Schema.Types.ObjectId,
       ref: "Review"
     }
-  ]
+  ],
+  // one to one relationship, but still using ref,
+  // so we do not have to store the data here.
+  // curly bracket because we dont need an array, there can be only 1 campground author.
+  author: {
+    type: Schema.Types.ObjectId,
+    ref: "User"
+  }
 });
 
 // "findByIdAndDelete" calls "findOneAndDelete" which supports post middleware!
