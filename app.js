@@ -150,6 +150,7 @@ app.use((req, res, next) => {
   // we will have access to current user (which has logged in successfully) everywhere in our app.
   // This important for showing extra functionality like "logout" for already logged in users,
   // and functionality like "login/register" incase noone has logged in.
+  // Also useful for some other functionality where, user authorization is needed:
   res.locals.currentUser = req.user;
 
   // notice that res.locals are available everywhere,
