@@ -129,6 +129,18 @@ router.get(
       res.redirect("/campgrounds");
     }
 
+    // =========
+    // This piece of code is for authorization:
+    // first find the campground (we already found it above!, so use it),
+    // const camp = await Campground.findById(id);
+    // then check whether currentUser is authorized or not:
+    if (!campground.author.equals(req.user._id)) {
+      // if user is not authorized, show error and RETURN after redirecting to show page:
+      req.flash("error", "You do not have the permission to do that!");
+      return res.redirect(`/campgrounds/${campground._id}`);
+    }
+    // =========
+
     res.render("campgrounds/edit", { campground });
   })
 );
@@ -165,6 +177,19 @@ router.put(
   schemaValidatorJoi, // does the server side data validations before running the put route
   asyncCatcher(async (req, res, next) => {
     const { id } = req.params;
+
+    // =========
+    // This piece of code is for authorization:
+    // first find the campground,
+    const camp = await Campground.findById(id);
+    // then check whether currentUser is authorized or not:
+    if (!camp.author.equals(req.user._id)) {
+      // if user is not authorized, show error and RETURN after redirecting to show page:
+      req.flash("error", "You do not have the permission to do that!");
+      return res.redirect(`/campgrounds/${camp._id}`);
+    }
+    // =========
+
     const campground = await Campground.findByIdAndUpdate(id, {
       ...req.body.campground
     });
@@ -180,6 +205,19 @@ router.delete(
   isloggedIn, // need to login to delete campground
   asyncCatcher(async (req, res) => {
     const { id } = req.params;
+
+    // =========
+    // This piece of code is for authorization:
+    // first find the campground,
+    const camp = await Campground.findById(id);
+    // then check whether currentUser is authorized or not:
+    if (!camp.author.equals(req.user._id)) {
+      // if user is not authorized, show error and RETURN after redirecting to show page:
+      req.flash("error", "You do not have the permission to do that!");
+      return res.redirect(`/campgrounds/${camp._id}`);
+    }
+    // =========
+
     const campground = await Campground.findByIdAndDelete(id);
 
     req.flash("success", "Successfully deleted the campground!");
