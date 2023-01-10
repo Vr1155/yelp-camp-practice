@@ -24,6 +24,10 @@ const {
 // for catching async errors:
 const asyncCatcher = require("../utilities/asyncCatcher");
 
+// ===================
+
+// All routes:
+
 // All POST requests:
 
 router.post(

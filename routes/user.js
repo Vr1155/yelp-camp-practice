@@ -10,6 +10,10 @@ const userControl = require("../controllers/user");
 const asyncCatcher = require("../utilities/asyncCatcher");
 const passport = require("passport");
 
+// ===================
+
+// All routes:
+
 // Register routes:
 
 router.get("/register", userControl.showRegister);
