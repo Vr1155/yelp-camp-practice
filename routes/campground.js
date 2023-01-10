@@ -3,9 +3,6 @@ const express = require("express");
 // for routing:
 const router = express.Router();
 
-// Importing model:
-const Campground = require("../models/campground");
-
 // Importing controller (which contains the business logic):
 const campgroundControl = require("../controllers/campground");
 
